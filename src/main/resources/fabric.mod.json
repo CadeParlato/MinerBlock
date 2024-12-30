@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "goofytestmod",
+	"version": "${version}",
+	"name": "GoofyTestMod",
+	"description": "This is a tutorial mod idk what I'm doing :)",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/goofytestmod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.cade.goofytestmod.GoofyTestMod"
+		],
+		"fabric-datagen": [
+			"net.cade.goofytestmod.GoofyTestModDataGenerator"
+		],
+		"client": [
+			"net.cade.goofytestmod.GoofyTestModClient"
+		]
+	},
+	"mixins": [
+		"goofytestmod.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

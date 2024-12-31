@@ -23,8 +23,8 @@ public class ModItems {
     public static void RegisterItems(){
         GoofyTestMod.LOGGER.info("Registering items for " + GoofyTestMod.MOD_ID);
 
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
-            entries.add(GOOBER);
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entry -> {
+            entry.add(GOOBER);
         });
     }
 

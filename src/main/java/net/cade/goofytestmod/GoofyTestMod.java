@@ -1,5 +1,6 @@
 package net.cade.goofytestmod;
 
+import net.cade.goofytestmod.block.ModBlocks;
 import net.cade.goofytestmod.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 
@@ -14,5 +15,6 @@ public class GoofyTestMod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ModItems.RegisterItems();
+		ModBlocks.RegisterModBlocks();
 	}
 }

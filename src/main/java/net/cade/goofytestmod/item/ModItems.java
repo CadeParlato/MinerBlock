@@ -1,6 +1,7 @@
 package net.cade.goofytestmod.item;
 
 import net.cade.goofytestmod.GoofyTestMod;
+import net.cade.goofytestmod.item.custom.ChiselItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
@@ -15,6 +16,8 @@ public class ModItems {
 
     public static final Item GOOBER = registerItem("goober", Item::new, new Item.Settings());
 
+    public static final Item CHISEL = registerItem("chisel", ChiselItem::new, new Item.Settings().maxDamage(32));
+
     public static Item registerItem(String name, Function<Item.Settings, Item> factory, Item.Settings settings) {
         final RegistryKey<Item> registryKey = RegistryKey.of(RegistryKeys.ITEM, Identifier.of(GoofyTestMod.MOD_ID, name));
         return Items.register(registryKey, factory, settings);
@@ -25,6 +28,7 @@ public class ModItems {
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entry -> {
             entry.add(GOOBER);
+            entry.add(CHISEL);
         });
     }
 

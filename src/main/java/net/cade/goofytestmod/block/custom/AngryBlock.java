@@ -22,6 +22,16 @@ public class AngryBlock extends BlockWithEntity {
     }
 
     @Override
+    protected MapCodec<? extends AngryBlock> getCodec() {
+        return createCodec(AngryBlock::new);
+    }
+
+    @Override
+    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new AngryBlockEntity(pos, state);
+    }
+
+    @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (!world.isClient){
             BlockEntity blockEntity = world.getBlockEntity(pos);
@@ -42,17 +52,5 @@ public class AngryBlock extends BlockWithEntity {
 
         return ActionResult.SUCCESS;
     }
-
-    @Override
-    protected MapCodec<? extends AngryBlock> getCodec() {
-        return createCodec(AngryBlock::new);
-    }
-
-    @Override
-    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new AngryBlockEntity(pos, state);
-    }
-
-    //If invisible, override getRenderType()
 
 }

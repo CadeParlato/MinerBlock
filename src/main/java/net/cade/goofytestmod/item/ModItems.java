@@ -15,7 +15,6 @@ import java.util.function.Function;
 public class ModItems {
 
     public static final Item GOOBER = registerItem("goober", Item::new, new Item.Settings());
-
     public static final Item CHISEL = registerItem("chisel", ChiselItem::new, new Item.Settings().maxDamage(32));
 
     public static Item registerItem(String name, Function<Item.Settings, Item> factory, Item.Settings settings) {

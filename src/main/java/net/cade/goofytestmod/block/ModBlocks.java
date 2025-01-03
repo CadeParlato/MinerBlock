@@ -1,7 +1,9 @@
 package net.cade.goofytestmod.block;
 
 import net.cade.goofytestmod.GoofyTestMod;
+import net.cade.goofytestmod.block.custom.AngryBlock;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemGroups;
@@ -17,6 +19,8 @@ public class ModBlocks {
 
     public static final Block COOL_BLOCK = registerBlock("cool_block", Block::new, Block.Settings.create()
             .strength(0.5f).sounds(BlockSoundGroup.BONE));
+    public static final Block ANGRY_BLOCK = registerBlock("angry_block", AngryBlock::new, AbstractBlock.Settings.create()
+            .strength(0.3f).sounds(BlockSoundGroup.ANVIL));
 
     private static Block registerBlock(String name, Function<Block.Settings, Block> factory, Block.Settings settings) {
         final RegistryKey<Block> registryKey = RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(GoofyTestMod.MOD_ID, name));
@@ -31,6 +35,7 @@ public class ModBlocks {
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entry -> {
             entry.add(COOL_BLOCK);
+            entry.add(ANGRY_BLOCK);
         });
     }
 

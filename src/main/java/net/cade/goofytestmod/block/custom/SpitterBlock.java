@@ -46,6 +46,26 @@ public class SpitterBlock extends BlockWithEntity {
     }
 
     @Override
+    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+        if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
+            if (!world.isClient()) {
+                ItemStack currentStack = spitterBlockEntity.getStack();
+                if (!currentStack.isEmpty()) {
+                    //Remove contents when clicking without pick
+                    spitterBlockEntity.giveStackToPlayer(player);
+                    //Effects
+                    world.playSound(null, pos, SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.BLOCKS, 1.0F, 1);
+                }else{
+                    world.playSound(null, pos, SoundEvents.BLOCK_CRAFTER_FAIL, SoundCategory.BLOCKS, 2.0F, 1);
+                }
+            }
+            return ActionResult.SUCCESS;
+        }else{
+            return ActionResult.PASS;
+        }
+    }
+
+    @Override
     protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
             if (world.isClient()){
@@ -53,7 +73,7 @@ public class SpitterBlock extends BlockWithEntity {
             }else{
                 ItemStack currentStack = spitterBlockEntity.getStack();
                 if (stack.isIn(TagKey.of(RegistryKeys.ITEM, Identifier.of("minecraft", "pickaxes")))
-                && currentStack.getCount() == 0){
+                && currentStack.isEmpty()){
                     //Test text, remove later
                     player.sendMessage(Text.literal("Used an item"), true);
                     //Take the player's pickaxe and store it in the block

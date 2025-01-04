@@ -24,7 +24,7 @@ public class ModBlocks {
     public static final Block ANGRY_BLOCK = registerBlock("angry_block", AngryBlock::new, BlockWithEntity.Settings.create()
             .strength(0.3f).sounds(BlockSoundGroup.ANVIL));
     public static final Block SPITTER_BLOCK = registerBlock("spitter_block", SpitterBlock::new, AbstractBlock.Settings.create()
-            .strength(0.3f).sounds(BlockSoundGroup.COPPER_GRATE));
+            .strength(0.3f).sounds(BlockSoundGroup.STONE));
 
     private static Block registerBlock(String name, Function<Block.Settings, Block> factory, Block.Settings settings) {
         final RegistryKey<Block> registryKey = RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(GoofyTestMod.MOD_ID, name));

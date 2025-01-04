@@ -8,10 +8,25 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.FacingBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class SpitterBlock extends BlockWithEntity {
@@ -31,6 +46,40 @@ public class SpitterBlock extends BlockWithEntity {
     }
 
     @Override
+    protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
+            if (world.isClient()){
+                return ActionResult.SUCCESS;
+            }else{
+                ItemStack currentStack = spitterBlockEntity.getStack();
+                if (stack.isIn(TagKey.of(RegistryKeys.ITEM, Identifier.of("minecraft", "pickaxes")))
+                && currentStack.getCount() == 0){
+                    //Test text, remove later
+                    player.sendMessage(Text.literal("Used an item"), true);
+                    //Take the player's pickaxe and store it in the block
+                    ItemStack newStack = stack.splitUnlessCreative(1, player);
+                    if (spitterBlockEntity.isEmpty()){
+                        spitterBlockEntity.setStack(newStack);
+                    }
+
+                    //Effects
+                    world.playSound(null, pos, SoundEvents.BLOCK_DECORATED_POT_INSERT, SoundCategory.BLOCKS, 1.0F, 0.7F + 0.5F);
+                    if (world instanceof ServerWorld serverWorld) {
+                        serverWorld.spawnParticles(ParticleTypes.DUST_PLUME, (double)pos.getX() + 0.5, (double)pos.getY() + 1.2, (double)pos.getZ() + 0.5, 7, 0.0, 0.0, 0.0, 0.0);
+                    }
+
+                    spitterBlockEntity.markDirty();
+                    return  ActionResult.SUCCESS;
+                }else{
+                    return ActionResult.PASS_TO_DEFAULT_BLOCK_ACTION;
+                }
+            }
+        }else {
+            return ActionResult.PASS;
+        }
+    }
+
+    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(Properties.FACING);
     }
@@ -40,4 +89,9 @@ public class SpitterBlock extends BlockWithEntity {
         return this.getDefaultState().with(FacingBlock.FACING, ctx.getPlayerLookDirection().getOpposite());
     }
 
+    @Override
+    protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        ItemScatterer.onStateReplaced(state, newState, world, pos);
+        super.onStateReplaced(state, world, pos, newState, moved);
+    }
 }

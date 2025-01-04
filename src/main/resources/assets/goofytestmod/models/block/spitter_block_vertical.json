@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/orientable_vertical",
+  "textures": {
+    "front": "goofytestmod:block/spitter_face",
+    "side": "goofytestmod:block/spitter_side"
+  }
+}

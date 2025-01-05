@@ -3,12 +3,9 @@ package net.cade.goofytestmod.entity.custom;
 import net.cade.goofytestmod.entity.ModBlockEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SingleStackInventory;
-import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -19,8 +16,10 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
+
+import java.util.Objects;
 
 public class SpitterBlockEntity extends BlockEntity implements SingleStackInventory.SingleStackBlockEntityInventory {
 
@@ -38,6 +37,21 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
     @Override
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return createNbt(registryLookup);
+    }
+
+    public void explode() {
+        Objects.requireNonNull(this.getWorld())
+                .createExplosion(
+                        null,
+                        Explosion.createDamageSource(this.getWorld(), null),
+                        null,
+                        this.pos.getX(),
+                        this.pos.getY(),
+                        this.pos.getZ(),
+                        2,
+                        false,
+                        World.ExplosionSourceType.TNT
+                );
     }
 
     @Override

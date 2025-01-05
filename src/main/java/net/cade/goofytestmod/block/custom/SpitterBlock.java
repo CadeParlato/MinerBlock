@@ -1,7 +1,6 @@
 package net.cade.goofytestmod.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import net.cade.goofytestmod.entity.custom.AngryBlockEntity;
 import net.cade.goofytestmod.entity.custom.SpitterBlockEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -24,7 +23,9 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import net.minecraft.world.block.WireOrientation;
 import org.jetbrains.annotations.Nullable;
 
 public class SpitterBlock extends BlockWithEntity {
@@ -35,7 +36,7 @@ public class SpitterBlock extends BlockWithEntity {
     public SpitterBlock(AbstractBlock.Settings settings) {
         super(settings);
         this.setDefaultState(
-                this.getStateManager().getDefaultState().with(ORIENTATION, Orientation.NORTH_UP)
+                this.getStateManager().getDefaultState().with(ORIENTATION, Orientation.NORTH_UP).with(TRIGGERED, Boolean.valueOf(false))
         );
     }
 
@@ -104,8 +105,30 @@ public class SpitterBlock extends BlockWithEntity {
     }
 
     @Override
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @Nullable WireOrientation wireOrientation, boolean notify) {
+        boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
+        boolean bl2 = (Boolean)state.get(TRIGGERED);
+        if (bl && !bl2) {
+            world.scheduleBlockTick(pos, this, 4);
+            world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(true)), Block.NOTIFY_LISTENERS);
+        } else if (!bl && bl2) {
+            world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
+        }
+    }
+
+    @Override
+    protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        if (!world.isClient()){
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof SpitterBlockEntity spitterBlockEntity){
+                spitterBlockEntity.explode();
+            }
+        }
+    }
+
+    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(ORIENTATION);
+        builder.add(ORIENTATION, TRIGGERED);
     }
 
     @Override

@@ -23,9 +23,12 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Position;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.block.WireOrientation;
+import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class SpitterBlock extends BlockWithEntity {
@@ -121,7 +124,7 @@ public class SpitterBlock extends BlockWithEntity {
         if (!world.isClient()){
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof SpitterBlockEntity spitterBlockEntity){
-                spitterBlockEntity.explode();
+                spitterBlockEntity.breakBlockAhead(state, world, pos);
             }
         }
     }

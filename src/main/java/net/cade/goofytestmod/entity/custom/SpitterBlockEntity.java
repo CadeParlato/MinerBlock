@@ -1,8 +1,10 @@
 package net.cade.goofytestmod.entity.custom;
 
 import net.cade.goofytestmod.entity.ModBlockEntities;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SingleStackInventory;
 import net.minecraft.item.ItemStack;
@@ -14,12 +16,19 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldEvents;
+import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.explosion.Explosion;
 
 import java.util.Objects;
+
+import static net.minecraft.block.Block.getRawIdFromState;
 
 public class SpitterBlockEntity extends BlockEntity implements SingleStackInventory.SingleStackBlockEntityInventory {
 
@@ -52,6 +61,17 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
                         false,
                         World.ExplosionSourceType.TNT
                 );
+    }
+
+    public void breakBlockAhead(BlockState state, ServerWorld world, BlockPos pos) {
+        Direction direction = state.get(Properties.ORIENTATION).getFacing();
+        BlockPos breakPos = pos.offset(direction);
+        BlockState targetState = world.getBlockState(breakPos);
+        if (targetState.isSolidBlock(world, breakPos)){
+            world.syncWorldEvent(null, WorldEvents.BLOCK_BROKEN, breakPos, getRawIdFromState(targetState));
+            world.removeBlock(breakPos, false);
+            world.emitGameEvent(GameEvent.BLOCK_DESTROY, breakPos, GameEvent.Emitter.of(null, targetState));
+        }
     }
 
     @Override

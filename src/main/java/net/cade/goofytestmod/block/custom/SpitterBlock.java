@@ -3,11 +3,9 @@ package net.cade.goofytestmod.block.custom;
 import com.mojang.serialization.MapCodec;
 import net.cade.goofytestmod.entity.custom.AngryBlockEntity;
 import net.cade.goofytestmod.entity.custom.SpitterBlockEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.FacingBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.Orientation;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -18,21 +16,27 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class SpitterBlock extends BlockWithEntity {
 
-    public SpitterBlock(Settings settings) {
+    public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
+    private static final EnumProperty<Orientation> ORIENTATION = Properties.ORIENTATION;
+
+    public SpitterBlock(AbstractBlock.Settings settings) {
         super(settings);
+        this.setDefaultState(
+                this.getStateManager().getDefaultState().with(ORIENTATION, Orientation.NORTH_UP)
+        );
     }
 
     @Override
@@ -101,17 +105,34 @@ public class SpitterBlock extends BlockWithEntity {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(Properties.FACING);
+        builder.add(ORIENTATION);
     }
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(FacingBlock.FACING, ctx.getPlayerLookDirection().getOpposite());
+        Direction direction1 = ctx.getPlayerLookDirection().getOpposite();
+        Direction direction2 = switch(direction1){
+            case DOWN -> ctx.getHorizontalPlayerFacing().getOpposite();
+            case UP -> ctx.getHorizontalPlayerFacing();
+            case NORTH, EAST, SOUTH, WEST -> Direction.UP;
+        };
+
+        return this.getDefaultState().with(Properties.ORIENTATION, Orientation.byDirections(direction1, direction2));
     }
 
     @Override
     protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         ItemScatterer.onStateReplaced(state, newState, world, pos);
         super.onStateReplaced(state, world, pos, newState, moved);
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, BlockRotation rotation) {
+        return state.with(ORIENTATION, rotation.getDirectionTransformation().mapJigsawOrientation(state.get(ORIENTATION)));
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, BlockMirror mirror) {
+        return state.with(ORIENTATION, mirror.getDirectionTransformation().mapJigsawOrientation(state.get(ORIENTATION)));
     }
 }

@@ -1,25 +1,56 @@
 {
   "variants": {
-    "facing=down": {
-      "model": "goofytestmod:block/spitter_block_vertical",
-      "x": 180
+    "orientation=north_up": {
+      "model": "goofytestmod:block/spitter_block"
     },
-    "facing=east": {
+    "orientation=east_up": {
       "model": "goofytestmod:block/spitter_block",
       "y": 90
     },
-    "facing=north": {
-      "model": "goofytestmod:block/spitter_block"
-    },
-    "facing=south": {
+    "orientation=south_up": {
       "model": "goofytestmod:block/spitter_block",
       "y": 180
     },
-    "facing=up": {
-      "model": "goofytestmod:block/spitter_block_vertical"
-    },
-    "facing=west": {
+    "orientation=west_up": {
       "model": "goofytestmod:block/spitter_block",
+      "y": 270
+    },
+    "orientation=up_north": {
+      "model": "goofytestmod:block/spitter_block",
+      "x": 270,
+      "y": 180
+    },
+    "orientation=down_north": {
+      "model": "goofytestmod:block/spitter_block",
+      "x": 90
+    },
+    "orientation=up_east": {
+      "model": "goofytestmod:block/spitter_block",
+      "x": 270,
+      "y": 270
+    },
+    "orientation=down_east": {
+      "model": "goofytestmod:block/spitter_block",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=up_south": {
+      "model": "goofytestmod:block/spitter_block",
+      "x": 270
+    },
+    "orientation=down_south": {
+      "model": "goofytestmod:block/spitter_block",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_west": {
+      "model": "goofytestmod:block/spitter_block",
+      "x": 270,
+      "y": 90
+    },
+    "orientation=down_west": {
+      "model": "goofytestmod:block/spitter_block",
+      "x": 90,
       "y": 270
     }
   }

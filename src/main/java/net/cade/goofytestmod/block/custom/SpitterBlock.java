@@ -1,9 +1,13 @@
 package net.cade.goofytestmod.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import net.cade.goofytestmod.entity.ModBlockEntities;
 import net.cade.goofytestmod.entity.custom.SpitterBlockEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.block.enums.Orientation;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -27,12 +31,14 @@ import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldEvents;
 import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class SpitterBlock extends BlockWithEntity {
 
+    public static final int ACTIVATION_DELAY = 20;
     public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
     private static final EnumProperty<Orientation> ORIENTATION = Properties.ORIENTATION;
 
@@ -57,6 +63,7 @@ public class SpitterBlock extends BlockWithEntity {
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
             if (!world.isClient()) {
+                player.sendMessage(Text.literal("Delay left: " + spitterBlockEntity.getMineTicksRemaining()), true);
                 ItemStack currentStack = spitterBlockEntity.getStack();
                 if (!currentStack.isEmpty()) {
                     //Remove contents when clicking without pick
@@ -109,10 +116,17 @@ public class SpitterBlock extends BlockWithEntity {
 
     @Override
     protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @Nullable WireOrientation wireOrientation, boolean notify) {
+        if (world.isClient) {return;} //Temp cause we need serverworld later
         boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
         boolean bl2 = (Boolean)state.get(TRIGGERED);
         if (bl && !bl2) {
-            world.scheduleBlockTick(pos, this, 4);
+            if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
+                //Only do something if the delay timer is zero
+                if (spitterBlockEntity.getMineTicksRemaining() == 0 && validBlockAhead(state, (ServerWorld) world, pos)){
+                    spitterBlockEntity.setMineTicksRemaining(ACTIVATION_DELAY);
+                    world.scheduleBlockTick(pos, this, 2);
+                }
+            }
             world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(true)), Block.NOTIFY_LISTENERS);
         } else if (!bl && bl2) {
             world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
@@ -124,9 +138,37 @@ public class SpitterBlock extends BlockWithEntity {
         if (!world.isClient()){
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof SpitterBlockEntity spitterBlockEntity){
-                spitterBlockEntity.breakBlockAhead(state, world, pos);
+                breakBlockAhead(state, world, pos, spitterBlockEntity.getStack());
+                //Damage tool
             }
         }
+    }
+
+    //The following two functions have blatant redundancy, but I'm lazy rn
+    public boolean validBlockAhead(BlockState state, ServerWorld world, BlockPos pos) {
+        Direction direction = state.get(ORIENTATION).getFacing();
+        BlockPos breakPos = pos.offset(direction);
+        BlockState targetState = world.getBlockState(breakPos);
+        return targetState.isSolidBlock(world, breakPos);
+    }
+
+    public void breakBlockAhead(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack) {
+        Direction direction = state.get(ORIENTATION).getFacing();
+        BlockPos breakPos = pos.offset(direction);
+        BlockState targetState = world.getBlockState(breakPos);
+        if (targetState.isSolidBlock(world, breakPos)){
+            world.syncWorldEvent(null, WorldEvents.BLOCK_BROKEN, breakPos, getRawIdFromState(targetState));
+            world.removeBlock(breakPos, false);
+            Block.dropStacks(targetState, world, breakPos, null, null, stack);
+            world.emitGameEvent(GameEvent.BLOCK_DESTROY, breakPos, GameEvent.Emitter.of(null, targetState));
+        }
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        if (type != ModBlockEntities.SPITTER_BLOCK) {return null;}
+        return world.isClient ? null : validateTicker(type, ModBlockEntities.SPITTER_BLOCK, SpitterBlockEntity::tickMineTimer);
     }
 
     @Override

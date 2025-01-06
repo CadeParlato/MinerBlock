@@ -3,7 +3,9 @@ package net.cade.goofytestmod.entity.custom;
 import net.cade.goofytestmod.entity.ModBlockEntities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.CrafterBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SingleStackInventory;
@@ -33,6 +35,7 @@ import static net.minecraft.block.Block.getRawIdFromState;
 public class SpitterBlockEntity extends BlockEntity implements SingleStackInventory.SingleStackBlockEntityInventory {
 
     private ItemStack stack = ItemStack.EMPTY;
+    private int mineTicksRemaining = 0;
 
     public SpitterBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.SPITTER_BLOCK, pos, state);
@@ -63,15 +66,19 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
                 );
     }
 
-    public void breakBlockAhead(BlockState state, ServerWorld world, BlockPos pos) {
-        Direction direction = state.get(Properties.ORIENTATION).getFacing();
-        BlockPos breakPos = pos.offset(direction);
-        BlockState targetState = world.getBlockState(breakPos);
-        if (targetState.isSolidBlock(world, breakPos)){
-            world.syncWorldEvent(null, WorldEvents.BLOCK_BROKEN, breakPos, getRawIdFromState(targetState));
-            world.removeBlock(breakPos, false);
-            world.emitGameEvent(GameEvent.BLOCK_DESTROY, breakPos, GameEvent.Emitter.of(null, targetState));
+    public static void tickMineTimer(World world, BlockPos pos, BlockState state, SpitterBlockEntity blockEntity) {
+        int i = blockEntity.mineTicksRemaining - 1;
+        if (i >= 0) {
+            blockEntity.mineTicksRemaining = i;
         }
+    }
+
+    public int getMineTicksRemaining() {
+        return mineTicksRemaining;
+    }
+
+    public void setMineTicksRemaining(int ticks) {
+        mineTicksRemaining = ticks;
     }
 
     @Override
@@ -79,6 +86,8 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
         if (!this.stack.isEmpty()){
             nbt.put("item", this.stack.toNbt(registryLookup));
         }
+
+        nbt.putInt("mine_ticks_remaining", mineTicksRemaining);
 
         super.writeNbt(nbt, registryLookup);
     }
@@ -92,6 +101,9 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
         } else {
             this.stack = ItemStack.EMPTY;
         }
+
+        mineTicksRemaining = nbt.getInt("mine_ticks_remaining");
+
     }
 
     @Override

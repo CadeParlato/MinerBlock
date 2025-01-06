@@ -13,6 +13,7 @@ import net.minecraft.util.Identifier;
 
 public class ModBlockEntities {
 
+    //Remember that these are types, not instances of the entities themselves
     public static final BlockEntityType<AngryBlockEntity> ANGRY_BLOCK = registerBlockEntity("angry_block",
             FabricBlockEntityTypeBuilder.create(AngryBlockEntity::new, ModBlocks.ANGRY_BLOCK).build());
     public static final BlockEntityType<SpitterBlockEntity> SPITTER_BLOCK = registerBlockEntity("spitter_block",

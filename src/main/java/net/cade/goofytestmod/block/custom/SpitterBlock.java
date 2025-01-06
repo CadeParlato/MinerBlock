@@ -7,13 +7,14 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.block.enums.Orientation;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -27,14 +28,14 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Position;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 public class SpitterBlock extends BlockWithEntity {
 
@@ -100,7 +101,8 @@ public class SpitterBlock extends BlockWithEntity {
                     //Effects
                     world.playSound(null, pos, SoundEvents.BLOCK_DECORATED_POT_INSERT, SoundCategory.BLOCKS, 1.0F, 0.7F + 0.5F);
                     if (world instanceof ServerWorld serverWorld) {
-                        serverWorld.spawnParticles(ParticleTypes.DUST_PLUME, (double)pos.getX() + 0.5, (double)pos.getY() + 1.2, (double)pos.getZ() + 0.5, 7, 0.0, 0.0, 0.0, 0.0);
+                        serverWorld.spawnParticles(ParticleTypes.DUST_PLUME, (double)pos.getX() + 0.5, (double)pos.getY() + 1.2,
+                                (double)pos.getZ() + 0.5, 7, 0.0, 0.0, 0.0, 0.0);
                     }
 
                     spitterBlockEntity.markDirty();
@@ -116,13 +118,13 @@ public class SpitterBlock extends BlockWithEntity {
 
     @Override
     protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @Nullable WireOrientation wireOrientation, boolean notify) {
-        if (world.isClient) {return;} //Temp cause we need serverworld later
+        if (world.isClient) {return;} //We need to make sure we can cast to serverworld later
         boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
         boolean bl2 = (Boolean)state.get(TRIGGERED);
         if (bl && !bl2) {
             if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
-                //Only do something if the delay timer is zero
-                if (spitterBlockEntity.getMineTicksRemaining() == 0 && validBlockAhead(state, (ServerWorld) world, pos)){
+                //Only do something if the delay timer is zero and the block ahead is valid
+                if (spitterBlockEntity.getMineTicksRemaining() == 0 && validBlockAhead(state, (ServerWorld) world, pos, spitterBlockEntity.getStack())){
                     spitterBlockEntity.setMineTicksRemaining(ACTIVATION_DELAY);
                     world.scheduleBlockTick(pos, this, 2);
                 }
@@ -144,19 +146,22 @@ public class SpitterBlock extends BlockWithEntity {
         }
     }
 
-    //The following two functions have blatant redundancy, but I'm lazy rn
-    public boolean validBlockAhead(BlockState state, ServerWorld world, BlockPos pos) {
+    //If the block is meant to be broken with the inserted tool, return true
+    public boolean validBlockAhead(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack) {
         Direction direction = state.get(ORIENTATION).getFacing();
         BlockPos breakPos = pos.offset(direction);
         BlockState targetState = world.getBlockState(breakPos);
-        return targetState.isSolidBlock(world, breakPos);
+        return stack.isSuitableFor(targetState);
     }
 
+    //Breaks the block in front, taking orientation into account
+    //Checks block breaking validity again in case the block was moved :)
     public void breakBlockAhead(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack) {
         Direction direction = state.get(ORIENTATION).getFacing();
         BlockPos breakPos = pos.offset(direction);
         BlockState targetState = world.getBlockState(breakPos);
-        if (targetState.isSolidBlock(world, breakPos)){
+
+        if(stack.isSuitableFor(targetState)) {
             world.syncWorldEvent(null, WorldEvents.BLOCK_BROKEN, breakPos, getRawIdFromState(targetState));
             world.removeBlock(breakPos, false);
             Block.dropStacks(targetState, world, breakPos, null, null, stack);

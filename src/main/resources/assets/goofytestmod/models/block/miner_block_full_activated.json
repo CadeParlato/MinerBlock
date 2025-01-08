@@ -3,7 +3,7 @@
   "textures": {
     "bottom": "goofytestmod:block/miner_bottom",
     "top": "goofytestmod:block/miner_top_full_activated",
-    "north": "goofytestmod:block/miner_front_full_activated",
+    "north": "goofytestmod:block/miner_front_full",
     "south": "goofytestmod:block/miner_back_full_activated",
     "west": "goofytestmod:block/miner_west_full_activated",
     "east": "goofytestmod:block/miner_east_full_activated",

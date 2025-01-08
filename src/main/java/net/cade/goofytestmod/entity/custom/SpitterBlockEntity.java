@@ -5,10 +5,7 @@ import net.cade.goofytestmod.block.custom.SpitterBlock;
 import net.cade.goofytestmod.entity.ModBlockEntities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.CrafterBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.CrafterBlockEntity;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SingleStackInventory;
 import net.minecraft.item.ItemStack;
@@ -20,14 +17,9 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
-import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.explosion.Explosion;
 
 import java.util.Objects;
@@ -133,6 +125,7 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
         if (slot != 0){
             return ItemStack.EMPTY;
         }else{
+            assert world != null;
             BlockState state = world.getBlockState(this.pos);
             if (state.isOf(ModBlocks.SPITTER_BLOCK)){
                 world.setBlockState(pos, state.with(SpitterBlock.FULL, Boolean.valueOf(false)), Block.NOTIFY_ALL);
@@ -144,6 +137,7 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
     @Override
     public void setStack(int slot, ItemStack stack) {
         if (slot == 0) {
+            assert world != null;
             BlockState state = world.getBlockState(this.pos);
             if (state.isOf(ModBlocks.SPITTER_BLOCK)){
                 world.setBlockState(pos, state.with(SpitterBlock.FULL, Boolean.valueOf(true)), Block.NOTIFY_ALL);

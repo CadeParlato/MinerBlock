@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "goofytestmod:block/spitter_block"
+    "model": "goofytestmod:block/miner_block"
   }
 }

@@ -2,11 +2,11 @@
   "parent": "block/block",
   "textures": {
     "bottom": "goofytestmod:block/miner_bottom",
-    "top": "goofytestmod:block/miner_top_empty",
-    "north": "goofytestmod:block/miner_front_empty",
-    "south": "goofytestmod:block/miner_back_empty",
-    "west": "goofytestmod:block/miner_west_empty",
-    "east": "goofytestmod:block/miner_east_empty",
+    "top": "goofytestmod:block/miner_top_full",
+    "north": "goofytestmod:block/miner_front_full",
+    "south": "goofytestmod:block/miner_back_full",
+    "west": "goofytestmod:block/miner_west_full",
+    "east": "goofytestmod:block/miner_east_full",
     "particle": "#north"
   },
   "elements": [

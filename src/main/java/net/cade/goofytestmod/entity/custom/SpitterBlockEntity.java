@@ -1,5 +1,6 @@
 package net.cade.goofytestmod.entity.custom;
 
+import net.cade.goofytestmod.block.custom.SpitterBlock;
 import net.cade.goofytestmod.entity.ModBlockEntities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -70,6 +71,11 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
         int i = blockEntity.mineTicksRemaining - 1;
         if (i >= 0) {
             blockEntity.mineTicksRemaining = i;
+        }else{
+            //Only look untriggered when timer is over
+            if (!world.isReceivingRedstonePower(pos) && !world.isReceivingRedstonePower(pos.up())) {
+                world.setBlockState(pos, state.with(SpitterBlock.TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
+            }
         }
     }
 

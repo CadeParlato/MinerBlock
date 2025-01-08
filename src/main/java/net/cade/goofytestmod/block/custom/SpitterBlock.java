@@ -8,6 +8,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.Orientation;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ToolComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
@@ -35,18 +37,28 @@ import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public class SpitterBlock extends BlockWithEntity {
 
     public static final int ACTIVATION_DELAY = 20;
     public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
-    private static final EnumProperty<Orientation> ORIENTATION = Properties.ORIENTATION;
+    public static final BooleanProperty FULL = Properties.SLOT_0_OCCUPIED; //Just use this as a stand-in property
+    public static final EnumProperty<Orientation> ORIENTATION = Properties.ORIENTATION;
+    private static final Set<TagKey<Item>> VALID_ITEM_TAGS = Set.of(
+            ItemTags.PICKAXES,
+            ItemTags.AXES,
+            ItemTags.SHOVELS,
+            ItemTags.HOES
+    );
 
     public SpitterBlock(AbstractBlock.Settings settings) {
         super(settings);
         this.setDefaultState(
                 this.getStateManager().getDefaultState().with(ORIENTATION, Orientation.NORTH_UP).with(TRIGGERED, Boolean.valueOf(false))
+                        .with(FULL, Boolean.valueOf(false))
         );
     }
 
@@ -70,6 +82,7 @@ public class SpitterBlock extends BlockWithEntity {
                     //Remove contents when clicking without pick
                     spitterBlockEntity.giveStackToPlayer(player);
                     //Effects
+                    world.setBlockState(pos, state.with(FULL, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
                     world.playSound(null, pos, SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.BLOCKS, 1.0F, 1);
                 }else{
                     world.playSound(null, pos, SoundEvents.BLOCK_CRAFTER_FAIL, SoundCategory.BLOCKS, 2.0F, 1);
@@ -88,17 +101,15 @@ public class SpitterBlock extends BlockWithEntity {
                 return ActionResult.SUCCESS;
             }else{
                 ItemStack currentStack = spitterBlockEntity.getStack();
-                if (stack.isIn(TagKey.of(RegistryKeys.ITEM, Identifier.of("minecraft", "pickaxes")))
-                && currentStack.isEmpty()){
+                if (isItemValid(stack) && currentStack.isEmpty()){
                     //Test text, remove later
                     player.sendMessage(Text.literal("Used an item"), true);
-                    //Take the player's pickaxe and store it in the block
+                    //Take the player's item and store it in the block
                     ItemStack newStack = stack.splitUnlessCreative(1, player);
-                    if (spitterBlockEntity.isEmpty()){
-                        spitterBlockEntity.setStack(newStack);
-                    }
+                    spitterBlockEntity.setStack(newStack);
 
                     //Effects
+                    world.setBlockState(pos, state.with(FULL, Boolean.valueOf(true)), Block.NOTIFY_LISTENERS);
                     world.playSound(null, pos, SoundEvents.BLOCK_DECORATED_POT_INSERT, SoundCategory.BLOCKS, 1.0F, 0.7F + 0.5F);
                     if (world instanceof ServerWorld serverWorld) {
                         serverWorld.spawnParticles(ParticleTypes.DUST_PLUME, (double)pos.getX() + 0.5, (double)pos.getY() + 1.2,
@@ -124,14 +135,19 @@ public class SpitterBlock extends BlockWithEntity {
         if (bl && !bl2) {
             if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
                 //Only do something if the delay timer is zero and the block ahead is valid
-                if (spitterBlockEntity.getMineTicksRemaining() == 0 && validBlockAhead(state, (ServerWorld) world, pos, spitterBlockEntity.getStack())){
+                if (spitterBlockEntity.getMineTicksRemaining() == 0 && canBreakAhead(state, (ServerWorld) world, pos, spitterBlockEntity.getStack())){
                     spitterBlockEntity.setMineTicksRemaining(ACTIVATION_DELAY);
                     world.scheduleBlockTick(pos, this, 2);
                 }
+                world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(true)), Block.NOTIFY_LISTENERS);
             }
-            world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(true)), Block.NOTIFY_LISTENERS);
-        } else if (!bl && bl2) {
-            world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
+        }else if(!bl){
+            //Make sure we toggle TRIGGERED if unpowered after being triggered past the entity's delay timer
+            if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
+                if (spitterBlockEntity.getMineTicksRemaining() == 0){
+                    world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
+                }
+            }
         }
     }
 
@@ -147,26 +163,43 @@ public class SpitterBlock extends BlockWithEntity {
     }
 
     //If the block is meant to be broken with the inserted tool, return true
-    public boolean validBlockAhead(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack) {
+    public boolean canBreakAhead(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack) {
         Direction direction = state.get(ORIENTATION).getFacing();
         BlockPos breakPos = pos.offset(direction);
         BlockState targetState = world.getBlockState(breakPos);
-        return stack.isSuitableFor(targetState);
+        return stack.isSuitableFor(targetState) && stack.getDamage() < stack.getMaxDamage() - 1;
     }
 
     //Breaks the block in front, taking orientation into account
-    //Checks block breaking validity again in case the block was moved :)
+    //Checks block breaking validity again in case something was changed
     public void breakBlockAhead(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack) {
         Direction direction = state.get(ORIENTATION).getFacing();
         BlockPos breakPos = pos.offset(direction);
         BlockState targetState = world.getBlockState(breakPos);
 
-        if(stack.isSuitableFor(targetState)) {
+        if(stack.isSuitableFor(targetState) && stack.getDamage() < stack.getMaxDamage() - 1) {
+            ToolComponent toolComponent = stack.get(DataComponentTypes.TOOL);
+            if (toolComponent != null) {
+                if (targetState.getHardness(world, breakPos) != 0.0F && toolComponent.damagePerBlock() > 0) {
+                    //stack.damage(1, null);
+                    stack.damage(1, world, null, item -> {});
+                }
+            }
+
             world.syncWorldEvent(null, WorldEvents.BLOCK_BROKEN, breakPos, getRawIdFromState(targetState));
             world.removeBlock(breakPos, false);
             Block.dropStacks(targetState, world, breakPos, null, null, stack);
             world.emitGameEvent(GameEvent.BLOCK_DESTROY, breakPos, GameEvent.Emitter.of(null, targetState));
         }
+    }
+
+    public static boolean isItemValid(ItemStack stack) {
+        for (TagKey<Item> tag : VALID_ITEM_TAGS){
+            if (stack.isIn(tag)){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Nullable
@@ -178,7 +211,7 @@ public class SpitterBlock extends BlockWithEntity {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(ORIENTATION, TRIGGERED);
+        builder.add(ORIENTATION, TRIGGERED, FULL);
     }
 
     @Override

@@ -1,0 +1,221 @@
+{
+  "variants": {
+    "orientation=north_up,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block"
+    },
+    "orientation=east_up,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "y": 90
+    },
+    "orientation=south_up,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "y": 180
+    },
+    "orientation=west_up,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "y": 270
+    },
+    "orientation=up_north,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "x": 270,
+      "y": 180
+    },
+    "orientation=down_north,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "x": 90
+    },
+    "orientation=up_east,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "x": 270,
+      "y": 270
+    },
+    "orientation=down_east,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=up_south,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "x": 270
+    },
+    "orientation=down_south,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_west,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "x": 270,
+      "y": 90
+    },
+    "orientation=down_west,triggered=false,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block",
+      "x": 90,
+      "y": 270
+    },
+
+
+    "orientation=north_up,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated"
+    },
+    "orientation=east_up,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "y": 90
+    },
+    "orientation=south_up,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "y": 180
+    },
+    "orientation=west_up,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "y": 270
+    },
+    "orientation=up_north,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "x": 270,
+      "y": 180
+    },
+    "orientation=down_north,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "x": 90
+    },
+    "orientation=up_east,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "x": 270,
+      "y": 270
+    },
+    "orientation=down_east,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=up_south,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "x": 270
+    },
+    "orientation=down_south,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_west,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "x": 270,
+      "y": 90
+    },
+    "orientation=down_west,triggered=true,slot_0_occupied=false": {
+      "model": "goofytestmod:block/miner_block_activated",
+      "x": 90,
+      "y": 270
+    },
+
+    "orientation=north_up,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full"
+    },
+    "orientation=east_up,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "y": 90
+    },
+    "orientation=south_up,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "y": 180
+    },
+    "orientation=west_up,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "y": 270
+    },
+    "orientation=up_north,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "x": 270,
+      "y": 180
+    },
+    "orientation=down_north,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "x": 90
+    },
+    "orientation=up_east,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "x": 270,
+      "y": 270
+    },
+    "orientation=down_east,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=up_south,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "x": 270
+    },
+    "orientation=down_south,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_west,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "x": 270,
+      "y": 90
+    },
+    "orientation=down_west,triggered=false,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full",
+      "x": 90,
+      "y": 270
+    },
+
+
+    "orientation=north_up,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated"
+    },
+    "orientation=east_up,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "y": 90
+    },
+    "orientation=south_up,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "y": 180
+    },
+    "orientation=west_up,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "y": 270
+    },
+    "orientation=up_north,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "x": 270,
+      "y": 180
+    },
+    "orientation=down_north,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "x": 90
+    },
+    "orientation=up_east,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "x": 270,
+      "y": 270
+    },
+    "orientation=down_east,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=up_south,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "x": 270
+    },
+    "orientation=down_south,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_west,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "x": 270,
+      "y": 90
+    },
+    "orientation=down_west,triggered=true,slot_0_occupied=true": {
+      "model": "goofytestmod:block/miner_block_full_activated",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

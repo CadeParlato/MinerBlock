@@ -23,7 +23,7 @@ public class ModBlocks {
             .strength(0.5f).sounds(BlockSoundGroup.BONE));
     public static final Block ANGRY_BLOCK = registerBlock("angry_block", AngryBlock::new, BlockWithEntity.Settings.create()
             .strength(0.3f).sounds(BlockSoundGroup.ANVIL));
-    public static final Block SPITTER_BLOCK = registerBlock("spitter_block", SpitterBlock::new, AbstractBlock.Settings.create()
+    public static final Block SPITTER_BLOCK = registerBlock("miner_block", SpitterBlock::new, AbstractBlock.Settings.create()
             .strength(0.3f).sounds(BlockSoundGroup.STONE));
 
     private static Block registerBlock(String name, Function<Block.Settings, Block> factory, Block.Settings settings) {

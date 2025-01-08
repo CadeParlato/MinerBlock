@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "goofytestmod:spitter_block"
+          "name": "goofytestmod:miner_block"
         }
       ],
       "rolls": 1.0

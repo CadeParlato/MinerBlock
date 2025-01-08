@@ -1,5 +1,6 @@
 package net.cade.goofytestmod.entity.custom;
 
+import net.cade.goofytestmod.block.ModBlocks;
 import net.cade.goofytestmod.block.custom.SpitterBlock;
 import net.cade.goofytestmod.entity.ModBlockEntities;
 import net.minecraft.block.Block;
@@ -71,10 +72,10 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
         int i = blockEntity.mineTicksRemaining - 1;
         if (i >= 0) {
             blockEntity.mineTicksRemaining = i;
-        }else{
+        }if (i <= 0){
             //Only look untriggered when timer is over
             if (!world.isReceivingRedstonePower(pos) && !world.isReceivingRedstonePower(pos.up())) {
-                world.setBlockState(pos, state.with(SpitterBlock.TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
+                world.setBlockState(pos, state.with(SpitterBlock.TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_ALL);
             }
         }
     }
@@ -125,6 +126,30 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
     @Override
     public void setStack(ItemStack stack) {
         this.stack = stack;
+    }
+
+    @Override
+    public ItemStack removeStack(int slot, int amount) {
+        if (slot != 0){
+            return ItemStack.EMPTY;
+        }else{
+            BlockState state = world.getBlockState(this.pos);
+            if (state.isOf(ModBlocks.SPITTER_BLOCK)){
+                world.setBlockState(pos, state.with(SpitterBlock.FULL, Boolean.valueOf(false)), Block.NOTIFY_ALL);
+            }
+            return decreaseStack(amount);
+        }
+    }
+
+    @Override
+    public void setStack(int slot, ItemStack stack) {
+        if (slot == 0) {
+            BlockState state = world.getBlockState(this.pos);
+            if (state.isOf(ModBlocks.SPITTER_BLOCK)){
+                world.setBlockState(pos, state.with(SpitterBlock.FULL, Boolean.valueOf(true)), Block.NOTIFY_ALL);
+            }
+            this.setStack(stack);
+        }
     }
 
     public void giveStackToPlayer(PlayerEntity player) {

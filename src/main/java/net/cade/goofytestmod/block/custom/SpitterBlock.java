@@ -76,7 +76,7 @@ public class SpitterBlock extends BlockWithEntity {
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
             if (!world.isClient()) {
-                player.sendMessage(Text.literal("Delay left: " + spitterBlockEntity.getMineTicksRemaining()), true);
+                //player.sendMessage(Text.literal("Delay left: " + spitterBlockEntity.getMineTicksRemaining()), true);
                 ItemStack currentStack = spitterBlockEntity.getStack();
                 if (!currentStack.isEmpty()) {
                     //Remove contents when clicking without pick
@@ -103,7 +103,7 @@ public class SpitterBlock extends BlockWithEntity {
                 ItemStack currentStack = spitterBlockEntity.getStack();
                 if (isItemValid(stack) && currentStack.isEmpty()){
                     //Test text, remove later
-                    player.sendMessage(Text.literal("Used an item"), true);
+                    //player.sendMessage(Text.literal("Used an item"), true);
                     //Take the player's item and store it in the block
                     ItemStack newStack = stack.splitUnlessCreative(1, player);
                     spitterBlockEntity.setStack(newStack);
@@ -129,7 +129,9 @@ public class SpitterBlock extends BlockWithEntity {
 
     @Override
     protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @Nullable WireOrientation wireOrientation, boolean notify) {
-        if (world.isClient) {return;} //We need to make sure we can cast to serverworld later
+        if (world.isClient) {
+            return; //We need to make sure we can cast to serverworld later
+        }
         boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
         boolean bl2 = (Boolean)state.get(TRIGGERED);
         if (bl && !bl2) {
@@ -138,10 +140,12 @@ public class SpitterBlock extends BlockWithEntity {
                 if (spitterBlockEntity.getMineTicksRemaining() == 0 && canBreakAhead(state, (ServerWorld) world, pos, spitterBlockEntity.getStack())){
                     spitterBlockEntity.setMineTicksRemaining(ACTIVATION_DELAY);
                     world.scheduleBlockTick(pos, this, 2);
+                }else{
+                    world.playSound(null, pos, SoundEvents.BLOCK_CRAFTER_FAIL, SoundCategory.BLOCKS, 1.5F, 0.6F);
                 }
                 world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(true)), Block.NOTIFY_LISTENERS);
             }
-        }else if(!bl){
+        }else if(!bl && bl2){
             //Make sure we toggle TRIGGERED if unpowered after being triggered past the entity's delay timer
             if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
                 if (spitterBlockEntity.getMineTicksRemaining() == 0){
@@ -156,8 +160,7 @@ public class SpitterBlock extends BlockWithEntity {
         if (!world.isClient()){
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof SpitterBlockEntity spitterBlockEntity){
-                breakBlockAhead(state, world, pos, spitterBlockEntity.getStack());
-                //Damage tool
+                breakBlockAhead(state, world, pos, spitterBlockEntity);
             }
         }
     }
@@ -172,17 +175,17 @@ public class SpitterBlock extends BlockWithEntity {
 
     //Breaks the block in front, taking orientation into account
     //Checks block breaking validity again in case something was changed
-    public void breakBlockAhead(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack) {
+    public void breakBlockAhead(BlockState state, ServerWorld world, BlockPos pos, SpitterBlockEntity spitterBlockEntity) {
         Direction direction = state.get(ORIENTATION).getFacing();
         BlockPos breakPos = pos.offset(direction);
         BlockState targetState = world.getBlockState(breakPos);
-
+        ItemStack stack = spitterBlockEntity.getStack();
         if(stack.isSuitableFor(targetState) && stack.getDamage() < stack.getMaxDamage() - 1) {
             ToolComponent toolComponent = stack.get(DataComponentTypes.TOOL);
             if (toolComponent != null) {
                 if (targetState.getHardness(world, breakPos) != 0.0F && toolComponent.damagePerBlock() > 0) {
-                    //stack.damage(1, null);
                     stack.damage(1, world, null, item -> {});
+                    spitterBlockEntity.markDirty();
                 }
             }
 
@@ -190,6 +193,7 @@ public class SpitterBlock extends BlockWithEntity {
             world.removeBlock(breakPos, false);
             Block.dropStacks(targetState, world, breakPos, null, null, stack);
             world.emitGameEvent(GameEvent.BLOCK_DESTROY, breakPos, GameEvent.Emitter.of(null, targetState));
+            world.playSound(null, breakPos, SoundEvents.BLOCK_CRAFTER_CRAFT, SoundCategory.BLOCKS, 1.0F, 0.8F);
         }
     }
 

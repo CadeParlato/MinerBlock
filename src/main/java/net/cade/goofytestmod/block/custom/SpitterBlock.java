@@ -1,12 +1,14 @@
 package net.cade.goofytestmod.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import net.cade.goofytestmod.block.ModBlocks;
 import net.cade.goofytestmod.entity.ModBlockEntities;
 import net.cade.goofytestmod.entity.custom.SpitterBlockEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.block.enums.Orientation;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ToolComponent;
@@ -73,6 +75,22 @@ public class SpitterBlock extends BlockWithEntity {
     }
 
     @Override
+    protected boolean hasComparatorOutput(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof SpitterBlockEntity spitterBlockEntity){
+            if (canBreakAhead(state, world, pos, spitterBlockEntity.getStack())){
+                return 15;
+            }
+        }
+        return 0;
+    }
+
+    @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
             if (!world.isClient()) {
@@ -82,7 +100,7 @@ public class SpitterBlock extends BlockWithEntity {
                     //Remove contents when clicking without pick
                     spitterBlockEntity.giveStackToPlayer(player);
                     //Effects
-                    world.setBlockState(pos, state.with(FULL, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
+                    world.setBlockState(pos, state.with(FULL, Boolean.valueOf(false)), Block.NOTIFY_ALL);
                     world.playSound(null, pos, SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.BLOCKS, 1.0F, 1);
                 }else{
                     world.playSound(null, pos, SoundEvents.BLOCK_CRAFTER_FAIL, SoundCategory.BLOCKS, 2.0F, 1);
@@ -132,22 +150,24 @@ public class SpitterBlock extends BlockWithEntity {
         if (world.isClient) {
             return; //We need to make sure we can cast to serverworld later
         }
-        boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
-        boolean bl2 = (Boolean)state.get(TRIGGERED);
-        if (bl && !bl2) {
-            if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
+        if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
+            //Update comparators
+            world.updateComparators(pos, ModBlocks.SPITTER_BLOCK);
+
+            boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
+            boolean bl2 = (Boolean)state.get(TRIGGERED);
+            if (bl && !bl2) {
                 //Only do something if the delay timer is zero and the block ahead is valid
-                if (spitterBlockEntity.getMineTicksRemaining() == 0 && canBreakAhead(state, (ServerWorld) world, pos, spitterBlockEntity.getStack())){
+                boolean canBreak = canBreakAhead(state, world, pos, spitterBlockEntity.getStack());
+                if (spitterBlockEntity.getMineTicksRemaining() == 0 && canBreak){
                     spitterBlockEntity.setMineTicksRemaining(ACTIVATION_DELAY);
                     world.scheduleBlockTick(pos, this, 2);
                 }else{
                     world.playSound(null, pos, SoundEvents.BLOCK_CRAFTER_FAIL, SoundCategory.BLOCKS, 1.5F, 0.6F);
                 }
                 world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(true)), Block.NOTIFY_LISTENERS);
-            }
-        }else if(!bl && bl2){
-            //Make sure we toggle TRIGGERED if unpowered after being triggered past the entity's delay timer
-            if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
+            }else if(!bl && bl2){
+                //Make sure we toggle TRIGGERED if unpowered after being triggered past the entity's delay timer
                 if (spitterBlockEntity.getMineTicksRemaining() == 0){
                     world.setBlockState(pos, state.with(TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_LISTENERS);
                 }
@@ -165,8 +185,8 @@ public class SpitterBlock extends BlockWithEntity {
         }
     }
 
-    //If the block is meant to be broken with the inserted tool, return true
-    public boolean canBreakAhead(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack) {
+    //If the block is meant to be broken with the inserted tool, return true (doesn't need serverworld)
+    public boolean canBreakAhead(BlockState state, World world, BlockPos pos, ItemStack stack) {
         Direction direction = state.get(ORIENTATION).getFacing();
         BlockPos breakPos = pos.offset(direction);
         BlockState targetState = world.getBlockState(breakPos);

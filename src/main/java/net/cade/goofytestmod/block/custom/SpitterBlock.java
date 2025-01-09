@@ -8,7 +8,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.block.enums.Orientation;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ToolComponent;
@@ -17,7 +16,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
@@ -27,7 +25,6 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -38,10 +35,7 @@ import net.minecraft.world.WorldEvents;
 import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class SpitterBlock extends BlockWithEntity {
 
@@ -83,7 +77,8 @@ public class SpitterBlock extends BlockWithEntity {
     protected int getComparatorOutput(BlockState state, World world, BlockPos pos) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof SpitterBlockEntity spitterBlockEntity){
-            if (canBreakAhead(state, world, pos, spitterBlockEntity.getStack())){
+            if (canBreakAhead(state, world, pos, spitterBlockEntity.getStack())
+                && !state.get(TRIGGERED)){
                 return 15;
             }
         }
@@ -99,6 +94,7 @@ public class SpitterBlock extends BlockWithEntity {
                 if (!currentStack.isEmpty()) {
                     //Remove contents when clicking without pick
                     spitterBlockEntity.giveStackToPlayer(player);
+                    spitterBlockEntity.markDirty();
                     //Effects
                     world.setBlockState(pos, state.with(FULL, Boolean.valueOf(false)), Block.NOTIFY_ALL);
                     world.playSound(null, pos, SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.BLOCKS, 1.0F, 1);
@@ -155,7 +151,7 @@ public class SpitterBlock extends BlockWithEntity {
             world.updateComparators(pos, ModBlocks.SPITTER_BLOCK);
 
             boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
-            boolean bl2 = (Boolean)state.get(TRIGGERED);
+            boolean bl2 = state.get(TRIGGERED);
             if (bl && !bl2) {
                 //Only do something if the delay timer is zero and the block ahead is valid
                 boolean canBreak = canBreakAhead(state, world, pos, spitterBlockEntity.getStack());

@@ -42,7 +42,8 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
 
     @Override
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+        //return createNbt(registryLookup);
+        return createComponentlessNbt(registryLookup);
     }
 
     public void explode() {
@@ -66,7 +67,7 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
             blockEntity.mineTicksRemaining = i;
         }if (i <= 0){
             //Only look untriggered when timer is over
-            if (!world.isReceivingRedstonePower(pos) && !world.isReceivingRedstonePower(pos.up())) {
+            if (!world.isReceivingRedstonePower(pos)) {
                 world.setBlockState(pos, state.with(SpitterBlock.TRIGGERED, Boolean.valueOf(false)), Block.NOTIFY_ALL);
             }
         }

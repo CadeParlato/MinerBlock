@@ -143,14 +143,11 @@ public class SpitterBlock extends BlockWithEntity {
 
     @Override
     protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @Nullable WireOrientation wireOrientation, boolean notify) {
-        if (world.isClient) {
-            return; //We need to make sure we can cast to serverworld later
-        }
         if (world.getBlockEntity(pos) instanceof SpitterBlockEntity spitterBlockEntity){
             //Update comparators
             world.updateComparators(pos, ModBlocks.SPITTER_BLOCK);
 
-            boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
+            boolean bl = world.isReceivingRedstonePower(pos);
             boolean bl2 = state.get(TRIGGERED);
             if (bl && !bl2) {
                 //Only do something if the delay timer is zero and the block ahead is valid

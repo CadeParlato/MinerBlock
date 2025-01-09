@@ -35,16 +35,16 @@ public class SpitterBlockEntity extends BlockEntity implements SingleStackInvent
         super(ModBlockEntities.SPITTER_BLOCK, pos, state);
     }
 
-    @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
-    }
-
-    @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        //return createNbt(registryLookup);
-        return createComponentlessNbt(registryLookup);
-    }
+//    @Override
+//    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+//        return BlockEntityUpdateS2CPacket.create(this);
+//    }
+//
+//    @Override
+//    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
+//        //return createNbt(registryLookup);
+//        return createComponentlessNbt(registryLookup);
+//    }
 
     public void explode() {
         Objects.requireNonNull(this.getWorld())

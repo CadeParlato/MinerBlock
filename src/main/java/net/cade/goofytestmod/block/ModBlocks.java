@@ -1,7 +1,6 @@
 package net.cade.goofytestmod.block;
 
 import net.cade.goofytestmod.GoofyTestMod;
-import net.cade.goofytestmod.block.custom.AngryBlock;
 import net.cade.goofytestmod.block.custom.SpitterBlock;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.AbstractBlock;
@@ -19,10 +18,6 @@ import java.util.function.Function;
 
 public class ModBlocks {
 
-    public static final Block COOL_BLOCK = registerBlock("cool_block", Block::new, Block.Settings.create()
-            .strength(0.5f).sounds(BlockSoundGroup.BONE));
-    public static final Block ANGRY_BLOCK = registerBlock("angry_block", AngryBlock::new, BlockWithEntity.Settings.create()
-            .strength(0.3f).sounds(BlockSoundGroup.ANVIL));
     public static final Block SPITTER_BLOCK = registerBlock("miner_block", SpitterBlock::new, AbstractBlock.Settings.create()
             .strength(1.5F, 3.5F).sounds(BlockSoundGroup.COPPER));
 
@@ -37,9 +32,7 @@ public class ModBlocks {
     public static void RegisterModBlocks() {
         GoofyTestMod.LOGGER.info("Registering mod blocks for " + GoofyTestMod.MOD_ID);
 
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entry -> {
-            entry.add(COOL_BLOCK);
-            entry.add(ANGRY_BLOCK);
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register(entry -> {
             entry.add(SPITTER_BLOCK);
         });
     }

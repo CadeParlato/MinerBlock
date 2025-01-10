@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "I": "minecraft:copper_ingot",
+    "R": "minecraft:redstone",
+    "D": "minecraft:dropper",
+    "P": "#minecraft:planks"
+  },
+  "pattern": [
+    "III",
+    "PDP",
+    "RPR"
+  ],
+  "result": {
+    "id": "goofytestmod:miner_block",
+    "count": 1
+  }
+}

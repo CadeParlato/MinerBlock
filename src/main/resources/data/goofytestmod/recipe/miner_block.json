@@ -4,7 +4,7 @@
   "key": {
     "I": "minecraft:copper_ingot",
     "R": "minecraft:redstone",
-    "D": "minecraft:dropper",
+    "D": "minecraft:dispenser",
     "P": "#minecraft:planks"
   },
   "pattern": [

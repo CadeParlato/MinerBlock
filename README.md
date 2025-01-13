@@ -6,3 +6,7 @@ Adds the _Miner_, a counterpart to the Crafter that allows for vanilla-friendly 
 
 ## Overview
 
+- The Miner begins empty but can be filled by right clicking with a pickaxe, axe, shovel, or hoe.
+- If the Miner is facing a block and the inserted tool is meant to mine that block, it will use the tool to mine whatever is ahead of it.
+- The Miner mines just like a player; it applies the tool's enchantments and damages it accordingly. It will not use a tool that is at one durability so as to avoid it breaking.
+- The Miner will give a full-strength comparator output if it is both filled and the inserted tool is valid for the facing block.

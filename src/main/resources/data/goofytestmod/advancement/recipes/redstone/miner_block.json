@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_dropper": {
+    "has_dispenser": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:dropper"
+            "items": "minecraft:dispenser"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_dropper"
+      "has_dispenser"
     ]
   ],
   "rewards": {

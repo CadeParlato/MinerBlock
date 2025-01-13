@@ -4,6 +4,9 @@ A Fabric mod for Minecraft 1.21.4.
 
 Adds the _Miner_, an inverse to the Crafter that allows for vanilla-friendly automining. Made of copper, redstone, wooden planks, and a dispenser, the Miner lets players insert tools and break blocks using redstone signals.
 
+Curseforge Link:
+https://www.curseforge.com/minecraft/mc-mods/minerblock
+
 ## Overview
 
 - The Miner begins empty but can be filled by right clicking with a pickaxe, axe, shovel, or hoe.

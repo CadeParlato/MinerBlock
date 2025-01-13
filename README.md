@@ -1,4 +1,4 @@
-# MinerMod
+# MinerBlock
 
 A Fabric mod for Minecraft 1.21.4.
 
